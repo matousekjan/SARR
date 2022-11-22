@@ -1,0 +1,21 @@
+{
+    "name": "matousekjan/sarr",
+    "description": "Simple API Request Router",
+    "type": "library",
+    "require": {
+        "nette/di": "^3.0",
+        "firebase/php-jwt": "^6.3"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Matousekjan\\Sarr\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "matousek.jan",
+            "email": "matousek.jan123@gmail.com"
+        }
+    ]
+}
