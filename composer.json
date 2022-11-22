@@ -1,6 +1,6 @@
 {
     "name": "matousekjan/sarr",
-    "description": "Simple API Request Router",
+    "description": "Service API Request Router",
     "type": "library",
     "require": {
         "nette/di": "^3.0",

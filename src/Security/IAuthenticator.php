@@ -22,7 +22,7 @@ interface IAuthenticator
 	 * 
 	 * @return string Encrypted JWT token
 	 */
-    public function GenerateToken(int $userId, array $roles = []) : string;
+	public function GenerateToken(int $userId, array $roles = []) : string;
 
 	/**
 	 * @return ?int Identificator of the user. Null if user is not logged in.
