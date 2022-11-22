@@ -26,7 +26,10 @@ final class RouteResolver
 	{
 		$loader = new \Nette\DI\ContainerLoader($tempDirectory . '/di', $developmentMode);
 		$containerDefinition = $loader->load(function ($compiler) use ($configDirectory) {
-			$compiler->loadConfig($configDirectory . '/environment.neon');
+			if(file_exists($configDirectory . '/environment.neon'))
+			{
+				$compiler->loadConfig($configDirectory . '/environment.neon');
+			}
 			$compiler->loadConfig($configDirectory . '/services.neon');
 		});
 
@@ -152,6 +155,7 @@ final class RouteResolver
 		{
 			$argument = null;
 
+			//TODO: Add parameter type checking
 			if(array_key_exists($parameter->getName(), ($httpMethod === 'GET' ? $_GET : $_POST)))
 			{
 				$argument = $httpMethod === 'GET'
