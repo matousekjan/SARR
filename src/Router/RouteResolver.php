@@ -182,15 +182,15 @@ final class RouteResolver
 				throw new Error400Exception();
 			}
 
-			if($parameter->hasType())
+			$requiredType = $parameter->getType();
+
+			$argumentRealValue = null;
+			if($parameter->hasType() && !$this->CheckParameterType($argument, $requiredType, $parameter->allowsNull(), $argumentRealValue))
 			{
-				$attrRealType = gettype($argument);
-				echo $argument . " (" . $attrRealType . "), ";
-				$requiredType = $parameter->getType();
-				echo $argument . " (" . $attrRealType . " - " . $requiredType . "), ";
+				throw new Error400Exception();
 			}
 
-			$parameters[] = $argument;
+			$parameters[] = $argumentRealValue;
 		}
 
 		$result = $foundReflectionMethod->invokeArgs($foundServiceObject, $parameters);
@@ -202,6 +202,87 @@ final class RouteResolver
 		}	
 
 		return $result;
+	}
+
+	private function CheckParameterType($argumentValue, $requiredType, $nullAllowed, &$outRealValue)
+	{
+		$attrRealType = gettype($argumentValue);
+		if($attrRealType == $requiredType)
+		{
+			$outRealValue = $argumentValue;
+			return true;
+		}
+
+		if($nullAllowed && $argumentValue === null)
+		{
+			$outRealValue = null;
+			return true;
+		}
+
+		if($nullAllowed && $requiredType != "string" && $argumentValue === "null")
+		{
+			$outRealValue = null;
+			return true;
+		}
+
+		switch($requiredType)
+		{
+			case "string":
+				$outRealValue = strval($argumentValue);
+				return true;
+				break;
+			case "int":
+				if($attrRealType != "string" || !is_numeric($argumentValue))
+				{
+					$outRealValue = null;
+					return false;
+				}
+				$floatVal = floatval($argumentValue);
+				$intVal = intval($argumentValue);
+				if($floatVal != $intVal)
+				{
+					$outRealValue = null;
+					return false;
+				}
+
+				$outRealValue = $intVal;
+				return true;
+				break;
+		
+			case "float":
+				if($attrRealType != "string" || !is_numeric($argumentValue))
+				{
+					$outRealValue = null;
+					return false;
+				}
+				$floatVal = floatval($argumentValue);
+
+				$outRealValue = $floatVal;
+				return true;
+				break;
+			case "bool":
+				if($argumentValue !== "true" && $argumentValue !== "false")
+				{
+					$outRealValue = null;
+					return false;
+				}
+				$outRealValue = $argumentValue === "true";
+				return true;
+				break;
+			case "array":
+				if($attrRealType != "array")
+				{
+					$outRealValue = null;
+					return false;
+				}
+				$outRealValue = $argumentValue;
+				return true;
+				break;
+						
+		}
+
+		$outRealValue = null;
+		return false;
 	}
 
 	private function FindHttpRouteAttributeAttribute(ReflectionMethod $method) : ?HttpRouteAttribute
