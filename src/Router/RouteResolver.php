@@ -227,10 +227,12 @@ final class RouteResolver
 
 		switch($requiredType)
 		{
+			case "?string":
 			case "string":
 				$outRealValue = strval($argumentValue);
 				return true;
 				break;
+			case "?int":
 			case "int":
 				if($attrRealType != "string" || !is_numeric($argumentValue))
 				{
@@ -249,6 +251,7 @@ final class RouteResolver
 				return true;
 				break;
 		
+			case "?float":
 			case "float":
 				if($attrRealType != "string" || !is_numeric($argumentValue))
 				{
@@ -260,6 +263,7 @@ final class RouteResolver
 				$outRealValue = $floatVal;
 				return true;
 				break;
+			case "?bool":
 			case "bool":
 				if($argumentValue !== "true" && $argumentValue !== "false")
 				{
@@ -269,6 +273,7 @@ final class RouteResolver
 				$outRealValue = $argumentValue === "true";
 				return true;
 				break;
+			case "?array":
 			case "array":
 				if($attrRealType != "array")
 				{
