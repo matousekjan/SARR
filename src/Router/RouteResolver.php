@@ -182,8 +182,13 @@ final class RouteResolver
 				throw new Error400Exception();
 			}
 
-			$attrRealType = gettype($argument);
-			echo $argument . " (" . $attrRealType . "), ";
+			if($parameter->hasType())
+			{
+				$attrRealType = gettype($argument);
+				echo $argument . " (" . $attrRealType . "), ";
+				$requiredType = $parameter->getType();
+				echo $argument . " (" . $attrRealType . " - " . $requiredType . "), ";
+			}
 
 			$parameters[] = $argument;
 		}
