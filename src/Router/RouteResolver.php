@@ -46,33 +46,27 @@ final class RouteResolver
 	
 	public function Resolve()
 	{
+		header('Content-Type: application/json; charset=utf-8');
 		try
 		{
 			$endpointResponse = $this->GetServiceResponse();
 			
-			header('Content-Type: application/json; charset=utf-8');
 			http_response_code(200);
 			echo json_encode(new ServiceResponse([], $endpointResponse));
-			exit;
 		}
 		catch(HttpException $exception)
 		{
-			header('Content-Type: application/json; charset=utf-8');
 			http_response_code($exception->GetErrorCode());
 			echo json_encode(new ServiceResponse([ $exception->GetErrorCode() ]));
-			exit;
 		}
 		catch(ServiceErrorException $exception)
 		{
-			header('Content-Type: application/json; charset=utf-8');
 			http_response_code(200);
 			echo json_encode(new ServiceResponse($exception->GetErrorCodes()));
-			exit;
 		}
 		catch(Exception $e)
 		{
 			//TODO: Log unhandled exceptions
-			header('Content-Type: application/json; charset=utf-8');
 			http_response_code(500);
 
 			echo json_encode([
@@ -81,6 +75,9 @@ final class RouteResolver
 				$e->getLine(),
 				$e->getTraceAsString()
 			]);
+		}
+		finally
+		{
 			exit;
 		}
 	}
