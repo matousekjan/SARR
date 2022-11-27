@@ -26,7 +26,16 @@ final class RouteResolver
 	private string $environmentConfigFileName = 'environment.neon';
 	private string $servicesConfigFileName = 'services.neon';
 	
-	public function __construct(string $tempDirectory, string $configDirectory, string $servicesDirectory, bool $developmentMode = false)
+	/**
+	 * Creates instance of the RouteResolver
+	 * 
+	 * @param string 	$tempDirectory		Location of the temp directory
+	 * @param string 	$configDirectory	Location of the config directory
+	 * @param string 	$servicesDirectory	Location of the directory containing services
+	 * @param bool 		$developmentMode	If true, the SARR will run in development mode (caching turned off)
+	 * @param bool 		$autoResolve		If true, Resolve() method is called automatically
+	 */
+	public function __construct(string $tempDirectory, string $configDirectory, string $servicesDirectory, bool $developmentMode = false, bool $autoResolve = true)
 	{
 		ini_set('html_errors', false);
 
@@ -42,8 +51,17 @@ final class RouteResolver
 		$container = new $containerDefinition;
 		$this->diContainer = $container;
 		$this->servicesDirectory = $servicesDirectory;
+
+		if($autoResolve)
+		{
+			$this->Resolve();
+		}
 	}
 	
+	/**
+	 * Calling this method will resolve the request.
+	 * There is no need to call this method unless you set $autoResolve = false in the constructor.
+	 */
 	public function Resolve()
 	{
 		header('Content-Type: application/json; charset=utf-8');
