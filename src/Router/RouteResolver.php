@@ -14,6 +14,7 @@ use Matousekjan\Sarr\Security\Attributes\Authenticated;
 use Matousekjan\Sarr\Security\IAuthenticator;
 use Exception;
 use Nette\DI\Container;
+use Nette\DI\MissingServiceException;
 use ReflectionMethod;
 use ReflectionObject;
 
@@ -112,7 +113,16 @@ final class RouteResolver
 
 		foreach($services as $service)
 		{
-			$serviceObject = $this->diContainer->getByType($service);
+			$serviceObject = null;
+			try
+			{
+				$serviceObject = $this->diContainer->getByType($service);
+			}
+			catch(MissingServiceException)
+			{
+				continue;
+			}
+			
 			$reflectionObject = new ReflectionObject($serviceObject);
 
 			foreach($reflectionObject->getMethods(ReflectionMethod::IS_PUBLIC) as $method)
