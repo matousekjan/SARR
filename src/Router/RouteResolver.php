@@ -22,52 +22,69 @@ final class RouteResolver
 {
 	private Container $diContainer;
 	private string $servicesDirectory;
+	private string $diDirectoryName = 'di';
+	private string $environmentConfigFileName = 'environment.neon';
+	private string $servicesConfigFileName = 'services.neon';
 	
-	public function __construct(string $tempDirectory, string $configDirectory, string $servicesDirectory, bool $developmentMode = false)
+	/**
+	 * Creates instance of the RouteResolver
+	 * 
+	 * @param string 	$tempDirectory		Location of the temp directory
+	 * @param string 	$configDirectory	Location of the config directory
+	 * @param string 	$servicesDirectory	Location of the directory containing services
+	 * @param bool 		$developmentMode	If true, the SARR will run in development mode (caching turned off)
+	 * @param bool 		$autoResolve		If true, Resolve() method is called automatically
+	 */
+	public function __construct(string $tempDirectory, string $configDirectory, string $servicesDirectory, bool $developmentMode = false, bool $autoResolve = true)
 	{
-		$loader = new \Nette\DI\ContainerLoader($tempDirectory . '/di', $developmentMode);
+		ini_set('html_errors', false);
+
+		$loader = new \Nette\DI\ContainerLoader($tempDirectory . '/' . $this->diDirectoryName, $developmentMode);
 		$containerDefinition = $loader->load(function ($compiler) use ($configDirectory) {
-			if(file_exists($configDirectory . '/environment.neon'))
+			if(file_exists($configDirectory . '/' . $this->environmentConfigFileName))
 			{
-				$compiler->loadConfig($configDirectory . '/environment.neon');
+				$compiler->loadConfig($configDirectory . '/' . $this->environmentConfigFileName);
 			}
-			$compiler->loadConfig($configDirectory . '/services.neon');
+			$compiler->loadConfig($configDirectory . '/' . $this->servicesConfigFileName);
 		});
 
 		$container = new $containerDefinition;
 		$this->diContainer = $container;
 		$this->servicesDirectory = $servicesDirectory;
+
+		if($autoResolve)
+		{
+			$this->Resolve();
+		}
 	}
 	
+	/**
+	 * Calling this method will resolve the request.
+	 * There is no need to call this method unless you set $autoResolve = false in the constructor.
+	 */
 	public function Resolve()
 	{
+		header('Content-Type: application/json; charset=utf-8');
 		try
 		{
 			$endpointResponse = $this->GetServiceResponse();
 			
-			header('Content-Type: application/json; charset=utf-8');
 			http_response_code(200);
 			echo json_encode(new ServiceResponse([], $endpointResponse));
-			exit;
 		}
 		catch(HttpException $exception)
 		{
-			header('Content-Type: application/json; charset=utf-8');
 			http_response_code($exception->GetErrorCode());
 			echo json_encode(new ServiceResponse([ $exception->GetErrorCode() ]));
-			exit;
 		}
 		catch(ServiceErrorException $exception)
 		{
-			header('Content-Type: application/json; charset=utf-8');
 			http_response_code(200);
 			echo json_encode(new ServiceResponse($exception->GetErrorCodes()));
-			exit;
 		}
 		catch(Exception $e)
 		{
 			//TODO: Log unhandled exceptions
-			header('Content-Type: application/json; charset=utf-8');
 			http_response_code(500);
 
 			echo json_encode([
@@ -76,6 +93,9 @@ final class RouteResolver
 				$e->getLine(),
 				$e->getTraceAsString()
 			]);
+		}
+		finally
+		{
 			exit;
 		}
 	}
