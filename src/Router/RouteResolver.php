@@ -264,12 +264,12 @@ final class RouteResolver
 
 			case "?bool":
 			case "bool":
-				if($argumentValue !== "true" && $argumentValue !== "false")
+				if($argumentValue !== "true" && $argumentValue !== "false" && $argumentValue !== "TRUE" && $argumentValue !== "FALSE")
 				{
 					$outRealValue = null;
 					return false;
 				}
-				$outRealValue = $argumentValue === "true";
+				$outRealValue = $argumentValue === "true" || $argumentValue === "TRUE";
 				return true;
 
 			case "?array":
