@@ -22,16 +22,21 @@ final class RouteResolver
 {
 	private Container $diContainer;
 	private string $servicesDirectory;
+	private string $diDirectoryName = 'di';
+	private string $environmentConfigFileName = 'environment.neon';
+	private string $servicesConfigFileName = 'services.neon';
 	
 	public function __construct(string $tempDirectory, string $configDirectory, string $servicesDirectory, bool $developmentMode = false)
 	{
-		$loader = new \Nette\DI\ContainerLoader($tempDirectory . '/di', $developmentMode);
+		ini_set('html_errors', false);
+
+		$loader = new \Nette\DI\ContainerLoader($tempDirectory . '/' . $this->diDirectoryName, $developmentMode);
 		$containerDefinition = $loader->load(function ($compiler) use ($configDirectory) {
-			if(file_exists($configDirectory . '/environment.neon'))
+			if(file_exists($configDirectory . '/' . $this->environmentConfigFileName))
 			{
-				$compiler->loadConfig($configDirectory . '/environment.neon');
+				$compiler->loadConfig($configDirectory . '/' . $this->environmentConfigFileName);
 			}
-			$compiler->loadConfig($configDirectory . '/services.neon');
+			$compiler->loadConfig($configDirectory . '/' . $this->servicesConfigFileName);
 		});
 
 		$container = new $containerDefinition;
