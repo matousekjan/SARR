@@ -9,9 +9,9 @@ namespace Matousekjan\Sarr\Responses;
 class ServiceResponse
 {
     public array $errors = [];
-	public null|object|string|int|bool|array $response = null;
+	public null|object|string|int|bool|array|float $response = null;
 
-	public function __construct(array $errors = [], null|object|string|int|bool|array $response = null)
+	public function __construct(array $errors = [], null|object|string|int|bool|array|float $response = null)
 	{
 		$this->errors = $errors;
 		$this->response = $response;
